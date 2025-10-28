@@ -17,7 +17,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// ✅ Fix Leaflet marker icon issue
+// ✅ Fix Leaflet marker icon path issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -27,12 +27,14 @@ L.Icon.Default.mergeOptions({
 });
 
 function WeatherNow() {
+  // 🎯 State management
   const [city, setCity] = useState("Chennai");
   const [weather, setWeather] = useState(null);
   const [coords, setCoords] = useState({ lat: 13.0827, lon: 80.2707 });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // 🌤️ Select weather icon dynamically
   const getWeatherIcon = (code) => {
     if (code === 0) return <WiDaySunny className="text-8xl text-yellow-400" />;
     if ([1, 2, 3].includes(code))
@@ -52,6 +54,7 @@ function WeatherNow() {
     return <WiNightClear className="text-8xl text-indigo-400" />;
   };
 
+  // 🕒 Format date and time nicely
   const formatDateTime = (isoString) => {
     const dateObj = new Date(isoString);
     const date = dateObj.toLocaleDateString("en-US", {
@@ -67,7 +70,9 @@ function WeatherNow() {
     return { date, time };
   };
 
+  // 🌎 Fetch weather info from Open-Meteo
   const fetchWeather = async (selectedCity = city) => {
+    if (!selectedCity.trim()) return;
     try {
       setError("");
       setLoading(true);
@@ -92,7 +97,7 @@ function WeatherNow() {
       const weatherData = await weatherRes.json();
 
       setWeather({ ...weatherData.current_weather, name, country });
-      setCity("");
+      setCity(""); // clear input
     } catch {
       setError("Failed to fetch weather data!");
     } finally {
@@ -100,6 +105,7 @@ function WeatherNow() {
     }
   };
 
+  // 📍 Default weather for Chennai on first load
   useEffect(() => {
     fetchWeather("Chennai");
   }, []);
@@ -110,7 +116,7 @@ function WeatherNow() {
         🌦️ Weather Now
       </h1>
 
-      {/* Search */}
+      {/* 🔍 Search Section */}
       <div className="flex flex-wrap justify-center gap-3 mb-8">
         <input
           type="text"
@@ -132,15 +138,16 @@ function WeatherNow() {
         </button>
       </div>
 
+      {/* 🚨 Error Message */}
       {error && (
         <p className="text-red-700 bg-red-100 px-4 py-2 rounded-lg shadow">
           {error}
         </p>
       )}
 
-      {/* Weather + Map Section */}
+      {/* 🌤️ Weather + 🗺️ Map Layout */}
       <div className="flex flex-col lg:flex-row gap-8 mt-8 w-full max-w-6xl justify-center items-stretch">
-        {/* Weather Card */}
+        {/* 🌡️ Weather Card */}
         <div className="flex-1 bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-lg text-center relative">
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-2xl">
@@ -161,7 +168,7 @@ function WeatherNow() {
                 </p>
               </div>
 
-              {/* Wind Info */}
+              {/* 💨 Wind Info */}
               <div className="flex justify-center gap-6 mt-6 text-lg text-gray-700">
                 <div className="flex items-center gap-2">
                   <WiStrongWind className="text-3xl text-blue-600" />
@@ -176,7 +183,7 @@ function WeatherNow() {
                 </div>
               </div>
 
-              {/* Date & Time */}
+              {/* 📅 Date & Time */}
               <div className="mt-5 text-gray-600 text-lg flex flex-col items-center">
                 {(() => {
                   const { date, time } = formatDateTime(weather.time);
@@ -198,7 +205,7 @@ function WeatherNow() {
           )}
         </div>
 
-        {/* Map */}
+        {/* 🗺️ Map Section */}
         {coords && (
           <div className="flex-1 h-[400px] rounded-2xl overflow-hidden shadow-lg">
             <MapContainer
