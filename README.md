@@ -147,14 +147,6 @@ const fetchWeather = async (selectedCity = city) => {
 * Use weather icons mapped from Open‑Meteo `weathercode` (documented on open-meteo site)
 * Use subtle color background changes based on temperature or condition (cold = blue, hot = orange)
 
----
-
-## Accessibility & performance
-
-* Ensure text has sufficient contrast and font sizes are readable at a glance
-* Provide accessible labels for search and unit toggles
-* Cache last successful search in `localStorage` to show instantly on reload
-* Keep bundle size small; avoid heavy icon packs if not needed
 
 ---
 
