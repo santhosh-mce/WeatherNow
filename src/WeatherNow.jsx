@@ -8,12 +8,16 @@ import {
   WiThunderstorm,
   WiNightClear,
   WiShowers,
+  WiStrongWind,
+  WiDirectionUp,
+  WiTime9,
 } from "react-icons/wi";
+import { IoCalendarSharp } from "react-icons/io5";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-// ✅ Fix Leaflet marker icon path issue
+// ✅ Fix Leaflet marker icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl:
@@ -66,7 +70,6 @@ function WeatherNow() {
   const fetchWeather = async (selectedCity = city) => {
     try {
       setError("");
-      setWeather(null);
       setLoading(true);
 
       const geoRes = await fetch(
@@ -107,7 +110,7 @@ function WeatherNow() {
         🌦️ Weather Now
       </h1>
 
-      {/* Input and Button */}
+      {/* Search */}
       <div className="flex flex-wrap justify-center gap-3 mb-8">
         <input
           type="text"
@@ -135,49 +138,67 @@ function WeatherNow() {
         </p>
       )}
 
-     
-
-      {/* Weather & Map Section */}
+      {/* Weather + Map Section */}
       <div className="flex flex-col lg:flex-row gap-8 mt-8 w-full max-w-6xl justify-center items-stretch">
         {/* Weather Card */}
-        
-          <div className="flex-1 bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-lg text-center flex flex-col justify-center">
-          {weather && !loading ? (
-            <>
-            <h2 className="text-4xl font-semibold text-gray-800">
-              {weather.name}, {weather.country}
-            </h2>
-            <div className="flex flex-col items-center mt-4">
-              {getWeatherIcon(weather.weathercode)}
-              <p className="text-5xl font-bold mt-3 text-blue-700">
-                {weather.temperature}°C
-              </p>
-              <p className="text-gray-600 mt-1 text-2xl">
-                💨 {weather.windspeed} km/h | 🧭 {weather.winddirection}°
-              </p>
+        <div className="flex-1 bg-white/80 backdrop-blur-md p-8 rounded-2xl shadow-lg text-center relative">
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/60 rounded-2xl">
+              <div className="w-12 h-12 border-4 border-blue-700 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          )}
 
-              <div className="mt-3 text-gray-500 text-xl">
+          {weather && (
+            <>
+              <h2 className="text-3xl font-semibold text-gray-800 mb-4">
+                {weather.name}, {weather.country}
+              </h2>
+
+              <div className="flex flex-col items-center mt-4">
+                {getWeatherIcon(weather.weathercode)}
+                <p className="text-5xl font-bold mt-3 text-blue-700">
+                  {weather.temperature}°C
+                </p>
+              </div>
+
+              {/* Wind Info */}
+              <div className="flex justify-center gap-6 mt-6 text-lg text-gray-700">
+                <div className="flex items-center gap-2">
+                  <WiStrongWind className="text-3xl text-blue-600" />
+                  <span>{weather.windspeed} km/h</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <WiDirectionUp
+                    className="text-3xl text-green-600"
+                    style={{ transform: `rotate(${weather.winddirection}deg)` }}
+                  />
+                  <span>{weather.winddirection}°</span>
+                </div>
+              </div>
+
+              {/* Date & Time */}
+              <div className="mt-5 text-gray-600 text-lg flex flex-col items-center">
                 {(() => {
                   const { date, time } = formatDateTime(weather.time);
                   return (
                     <>
-                      <p>{date}</p>
-                      <p>{time}</p>
+                      <div className="flex items-center gap-2">
+                        <IoCalendarSharp className="text-2xl text-blue-600" />
+                        <p>{date}</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <WiTime9 className="text-2xl text-blue-600" />
+                        <p>{time}</p>
+                      </div>
                     </>
                   );
                 })()}
               </div>
-            </div>
             </>
-         
-        ) : (
-          <div className="flex items-center justify-center mt-6">
-            <div className="w-12 h-12 border-4 border-blue-700 border-t-transparent rounded-full animate-spin"></div>
-          </div>
-        )}
-         </div>
+          )}
+        </div>
 
-        {/* Map Section */}
+        {/* Map */}
         {coords && (
           <div className="flex-1 h-[400px] rounded-2xl overflow-hidden shadow-lg">
             <MapContainer
